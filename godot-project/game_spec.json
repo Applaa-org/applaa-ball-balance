@@ -1,0 +1,39 @@
+{
+  "game": {
+    "name": "Ball Balance",
+    "type": "2D",
+    "genre": "arcade",
+    "description": "Keep a ball balanced on a tilting platform for as long as possible"
+  },
+  "settings": {
+    "window": {"width": 800, "height": 600},
+    "physics": {"gravity": 980}
+  },
+  "player": {
+    "name": "Platform Controller",
+    "abilities": ["tilt_left", "tilt_right"]
+  },
+  "entities": {
+    "ball": {
+      "radius": 20,
+      "physics": {
+        "gravity_scale": 1.0,
+        "friction": 0.8,
+        "bounce": 0.2
+      }
+    },
+    "platform": {
+      "width": 300,
+      "height": 20,
+      "max_tilt_angle": 0.5,
+      "tilt_speed": 2.0
+    }
+  },
+  "logic": {
+    "winCondition": "survive_as_long_as_possible",
+    "loseCondition": "ball_falls_off_platform",
+    "scoring": {
+      "pointsPerSecond": 1
+    }
+  }
+}
