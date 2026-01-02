@@ -5,175 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Ball Balance</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
             min-height: 100vh;
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
-
+        
         #gameContainer {
             position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 100vh;
-            max-height: 600px;
+            width: 800px;
+            height: 600px;
+            max-width: 100vw;
+            max-height: 100vh;
         }
-
-        canvas {
-            display: block;
+        
+        #gameCanvas {
             width: 100%;
             height: 100%;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
+            background: #0a0a1a;
+            border-radius: 8px;
+            display: block;
         }
-
-        .screen {
+        
+        .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: rgba(10, 10, 30, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(10, 10, 30, 0.95);
-            border-radius: 10px;
-            z-index: 10;
-            transition: opacity 0.3s ease;
+            border-radius: 8px;
+            z-index: 100;
         }
-
-        .screen.hidden {
-            opacity: 0;
-            pointer-events: none;
+        
+        .overlay.hidden {
+            display: none !important;
         }
-
+        
         .title {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 48px;
             color: #00d4ff;
+            margin-bottom: 10px;
             text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-            margin-bottom: 10px;
-            text-align: center;
         }
-
+        
         .subtitle {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .instruction {
-            font-size: 1rem;
+            font-size: 18px;
             color: #888;
-            margin-bottom: 15px;
-            text-align: center;
-            line-height: 1.6;
-            padding: 0 20px;
+            margin-bottom: 30px;
         }
-
-        .stats-box {
-            background: rgba(0, 100, 150, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+        
+        .high-score-box {
+            background: rgba(0, 100, 150, 0.3);
+            border: 2px solid #00d4ff;
             border-radius: 10px;
-            padding: 15px 25px;
-            margin-bottom: 20px;
+            padding: 15px 30px;
+            margin-bottom: 25px;
             text-align: center;
         }
-
-        .stats-box h3 {
+        
+        .high-score-box label {
             color: #00d4ff;
-            margin-bottom: 10px;
-            font-size: 1rem;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
         }
-
-        .stats-box .value {
+        
+        .high-score-box .score {
             color: #ffd700;
-            font-size: 2rem;
+            font-size: 32px;
             font-weight: bold;
         }
-
-        .player-input {
-            margin-bottom: 15px;
+        
+        .instructions {
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .name-input {
+            margin-bottom: 20px;
             text-align: center;
         }
-
-        .player-input label {
+        
+        .name-input label {
             color: #aaa;
             display: block;
             margin-bottom: 8px;
         }
-
-        .player-input input {
-            padding: 10px 15px;
-            font-size: 1rem;
-            border: 2px solid rgba(0, 212, 255, 0.3);
+        
+        .name-input input {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 2px solid #00d4ff;
             border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
             color: #fff;
             text-align: center;
             width: 200px;
-        }
-
-        .player-input input:focus {
             outline: none;
-            border-color: #00d4ff;
         }
-
+        
         .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 15px 50px;
+            font-size: 20px;
             font-weight: bold;
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s ease;
             margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        .btn-primary {
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-start {
             background: linear-gradient(135deg, #00d4ff, #0099cc);
             color: #000;
         }
-
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        
+        .btn-start:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
         }
-
-        .btn-secondary {
-            background: rgba(100, 100, 100, 0.3);
+        
+        .btn-menu {
+            background: rgba(100, 100, 100, 0.5);
             color: #fff;
             border: 2px solid #666;
         }
-
-        .btn-secondary:hover {
-            background: rgba(100, 100, 100, 0.5);
-        }
-
+        
         .btn-close {
-            background: rgba(255, 50, 50, 0.3);
+            background: transparent;
             color: #ff6666;
             border: 2px solid #ff6666;
-            padding: 10px 25px;
-            font-size: 1rem;
+            padding: 10px 30px;
+            font-size: 14px;
+            margin-top: 20px;
         }
-
-        .btn-close:hover {
-            background: rgba(255, 50, 50, 0.5);
+        
+        .leaderboard {
+            margin-top: 20px;
+            max-width: 280px;
+            text-align: center;
         }
-
+        
+        .leaderboard h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .leaderboard-item .name { flex: 1; text-align: left; }
+        .leaderboard-item .score { color: #00d4ff; }
+        
         #hud {
             position: absolute;
             top: 10px;
@@ -181,1430 +191,736 @@
             right: 10px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            z-index: 50;
             pointer-events: none;
-            z-index: 5;
         }
-
-        #hud.hidden {
-            display: none;
-        }
-
-        .hud-item {
+        
+        #hud.hidden { display: none; }
+        
+        .hud-box {
             background: rgba(0, 0, 0, 0.7);
-            padding: 10px 18px;
-            border-radius: 25px;
-            color: #fff;
-            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 18px;
             font-weight: bold;
         }
-
-        .hud-item.score {
-            color: #00d4ff;
-        }
-
-        .hud-item.high-score {
-            color: #ffd700;
-        }
-
+        
+        .hud-time { color: #00d4ff; }
+        .hud-best { color: #ffd700; }
+        
         #mobileControls {
             position: absolute;
             bottom: 20px;
-            left: 0;
-            right: 0;
+            left: 20px;
+            right: 20px;
             display: none;
             justify-content: space-between;
-            padding: 0 30px;
-            z-index: 5;
+            z-index: 50;
         }
-
-        .control-btn {
+        
+        .mobile-btn {
             width: 80px;
             height: 80px;
             border-radius: 50%;
             background: rgba(0, 212, 255, 0.3);
             border: 3px solid rgba(0, 212, 255, 0.6);
             color: #00d4ff;
-            font-size: 2rem;
+            font-size: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
-
-        .control-btn:active {
+        
+        .mobile-btn:active {
             background: rgba(0, 212, 255, 0.6);
-            transform: scale(0.95);
         }
-
-        .leaderboard {
-            margin-top: 10px;
-            max-height: 120px;
-            overflow-y: auto;
-            width: 100%;
-            max-width: 280px;
-        }
-
-        .leaderboard h4 {
-            color: #ffd700;
-            margin-bottom: 8px;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 10px;
-            color: #ccc;
-            font-size: 0.85rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .leaderboard-entry:first-of-type {
-            color: #ffd700;
-        }
-
-        .leaderboard-entry .rank {
-            color: #888;
-            width: 25px;
-        }
-
-        .leaderboard-entry .name {
-            flex: 1;
-            text-align: left;
-            margin-left: 10px;
-        }
-
-        .leaderboard-entry .entry-score {
-            color: #00d4ff;
-        }
-
-        .game-over-score {
-            font-size: 3.5rem;
+        
+        .final-score {
+            font-size: 60px;
             color: #00d4ff;
             font-weight: bold;
             margin: 10px 0;
         }
-
-        .new-high-score {
+        
+        .new-record {
             color: #ffd700;
-            font-size: 1.3rem;
+            font-size: 24px;
+            margin-bottom: 15px;
             animation: pulse 0.5s ease infinite alternate;
-            margin-bottom: 10px;
         }
-
-        .new-high-score.hidden {
-            display: none;
-        }
-
+        
         @keyframes pulse {
             from { opacity: 0.7; transform: scale(1); }
             to { opacity: 1; transform: scale(1.1); }
         }
-
-        .button-row {
+        
+        .btn-row {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 10px;
         }
-
+        
         @media (max-width: 600px) {
-            .title { font-size: 2rem; }
-            .subtitle { font-size: 1rem; }
-            .btn { padding: 12px 30px; font-size: 1rem; }
+            .title { font-size: 32px; }
+            .btn { padding: 12px 35px; font-size: 16px; }
             #mobileControls { display: flex; }
-            .control-btn { width: 70px; height: 70px; font-size: 1.5rem; }
-            .game-over-score { font-size: 2.5rem; }
+            .final-score { font-size: 40px; }
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- HUD - Always visible during gameplay -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <!-- HUD -->
         <div id="hud" class="hidden">
-            <div class="hud-item score">⏱️ <span id="timeDisplay">0.0</span>s</div>
-            <div class="hud-item high-score">🏆 Best: <span id="hudHighScore">0.0</span>s</div>
+            <div class="hud-box hud-time">⏱️ <span id="timeDisplay">0.0</span>s</div>
+            <div class="hud-box hud-best">🏆 Best: <span id="hudBest">0.0</span>s</div>
         </div>
-
+        
         <!-- Mobile Controls -->
         <div id="mobileControls">
-            <div class="control-btn" id="leftBtn">◀</div>
-            <div class="control-btn" id="rightBtn">▶</div>
+            <div class="mobile-btn" id="btnLeft">◀</div>
+            <div class="mobile-btn" id="btnRight">▶</div>
         </div>
-
+        
         <!-- Start Screen -->
-        <div id="startScreen" class="screen">
+        <div id="startScreen" class="overlay">
             <div class="title">🎱 Ball Balance</div>
             <div class="subtitle">Keep the ball on the platform!</div>
             
-            <div class="stats-box">
-                <h3>🏆 HIGH SCORE</h3>
-                <div class="value" id="startHighScore">0.0s</div>
+            <div class="high-score-box">
+                <label>🏆 HIGH SCORE</label>
+                <div class="score" id="menuHighScore">0.0s</div>
             </div>
-
-            <div class="instruction">
+            
+            <div class="instructions">
                 <strong>How to Play:</strong><br>
-                Tilt the platform to balance the ball.<br>
-                Don't let it fall off!<br><br>
-                <strong>Controls:</strong> ← → Arrow Keys or A/D
+                Use ← → Arrow Keys or A/D to tilt the platform<br>
+                Keep the ball balanced as long as possible!
             </div>
-
-            <div class="player-input">
-                <label for="playerName">Your Name:</label>
-                <input type="text" id="playerName" placeholder="Player" maxlength="15">
+            
+            <div class="name-input">
+                <label>Your Name:</label>
+                <input type="text" id="playerNameInput" placeholder="Player" maxlength="12">
             </div>
-
-            <button class="btn btn-primary" id="startBtn">▶ START GAME</button>
             
-            <div class="leaderboard" id="startLeaderboard"></div>
+            <button class="btn btn-start" id="btnStart">▶ START GAME</button>
             
-            <br>
-            <button class="btn btn-close" id="closeBtn1">✕ Close</button>
+            <div class="leaderboard" id="menuLeaderboard"></div>
+            
+            <button class="btn btn-close" id="btnClose1">✕ Close</button>
         </div>
-
+        
         <!-- Game Over Screen -->
-        <div id="gameOverScreen" class="screen hidden">
+        <div id="gameOverScreen" class="overlay hidden">
             <div class="title">💥 Game Over!</div>
-            <div id="newHighScoreText" class="new-high-score hidden">🎉 NEW HIGH SCORE! 🎉</div>
+            <div class="new-record" id="newRecordText" style="display:none;">🎉 NEW HIGH SCORE! 🎉</div>
             
-            <div class="game-over-score" id="finalScore">0.0s</div>
+            <div class="final-score" id="finalScoreDisplay">0.0s</div>
             
-            <div class="stats-box">
-                <h3>🏆 HIGH SCORE</h3>
-                <div class="value" id="gameOverHighScore">0.0s</div>
-            </div>
-
-            <div class="button-row">
-                <button class="btn btn-primary" id="restartBtn">🔄 Play Again</button>
-                <button class="btn btn-secondary" id="menuBtn">📋 Menu</button>
+            <div class="high-score-box">
+                <label>🏆 HIGH SCORE</label>
+                <div class="score" id="overHighScore">0.0s</div>
             </div>
             
-            <div class="leaderboard" id="gameOverLeaderboard"></div>
+            <div class="btn-row">
+                <button class="btn btn-start" id="btnRestart">🔄 Play Again</button>
+                <button class="btn btn-menu" id="btnMenu">📋 Menu</button>
+            </div>
             
-            <br>
-            <button class="btn btn-close" id="closeBtn2">✕ Close</button>
+            <div class="leaderboard" id="overLeaderboard"></div>
+            
+            <button class="btn btn-close" id="btnClose2">✕ Close</button>
         </div>
     </div>
 
     <script>
-        // ============== GAME CONFIGURATION ==============
-        const CONFIG = {
-            gravity: 980,
-            friction: 0.985,
-            platformWidth: 250,
-            platformHeight: 16,
-            maxTilt: 0.45,
-            tiltSpeed: 3.0,
-            tiltReturnSpeed: 2.0,
-            ballBounce: 0.25
-        };
-
-        // ============== LOCALSTORAGE KEYS ==============
-        const STORAGE_KEY = 'ball-balance-game-data';
-
-        // ============== GAME STATE ==============
-        let gameState = {
-            isPlaying: false,
-            time: 0,
-            lastTime: 0,
-            animationId: null,
-            playerName: 'Player',
-            highScore: 0,
-            scores: []
-        };
-
-        // ============== GAME OBJECTS ==============
-        let ball = {
-            x: 0,
-            y: 0,
-            vx: 0,
-            vy: 0,
-            radius: 22
-        };
-
-        let platform = {
-            x: 0,
-            y: 0,
-            width: CONFIG.platformWidth,
-            height: CONFIG.platformHeight,
-            angle: 0,
-            targetAngle: 0
-        };
-
-        // ============== INPUT STATE ==============
-        const input = {
-            left: false,
-            right: false
-        };
-
-        // ============== CANVAS SETUP ==============
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // ============== DOM ELEMENTS ==============
-        const startScreen = document.getElementById('startScreen');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const hud = document.getElementById('hud');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const hudHighScore = document.getElementById('hudHighScore');
-        const startHighScore = document.getElementById('startHighScore');
-        const gameOverHighScore = document.getElementById('gameOverHighScore');
-        const finalScoreEl = document.getElementById('finalScore');
-        const newHighScoreText = document.getElementById('newHighScoreText');
-        const playerNameInput = document.getElementById('playerName');
-        const startLeaderboard = document.getElementById('startLeaderboard');
-        const gameOverLeaderboard = document.getElementById('gameOverLeaderboard');
-
-        // ============== LOCALSTORAGE FUNCTIONS ==============
-        function saveGameData() {
-            try {
-                const data = {
-                    highScore: gameState.highScore,
-                    scores: gameState.scores,
-                    lastPlayerName: gameState.playerName,
-                    lastUpdated: new Date().toISOString()
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                console.log('Game data saved:', data);
+        // ========================================
+        // BALL BALANCE GAME - SELF-CONTAINED
+        // ========================================
+        
+        (function() {
+            // Canvas setup
+            var canvas = document.getElementById('gameCanvas');
+            var ctx = canvas.getContext('2d');
+            
+            // DOM Elements
+            var startScreen = document.getElementById('startScreen');
+            var gameOverScreen = document.getElementById('gameOverScreen');
+            var hud = document.getElementById('hud');
+            var timeDisplay = document.getElementById('timeDisplay');
+            var hudBest = document.getElementById('hudBest');
+            var menuHighScore = document.getElementById('menuHighScore');
+            var overHighScore = document.getElementById('overHighScore');
+            var finalScoreDisplay = document.getElementById('finalScoreDisplay');
+            var newRecordText = document.getElementById('newRecordText');
+            var playerNameInput = document.getElementById('playerNameInput');
+            var menuLeaderboard = document.getElementById('menuLeaderboard');
+            var overLeaderboard = document.getElementById('overLeaderboard');
+            
+            // Game State
+            var isPlaying = false;
+            var gameTime = 0;
+            var lastTimestamp = 0;
+            var animationId = null;
+            
+            // Player Data
+            var playerName = 'Player';
+            var highScore = 0;
+            var scores = [];
+            
+            // Physics
+            var gravity = 900;
+            var friction = 0.985;
+            var maxTilt = 0.4;
+            var tiltSpeed = 3;
+            
+            // Ball
+            var ball = {
+                x: 400,
+                y: 250,
+                vx: 0,
+                vy: 0,
+                radius: 20
+            };
+            
+            // Platform
+            var platform = {
+                x: 400,
+                y: 350,
+                width: 250,
+                height: 14,
+                angle: 0,
+                targetAngle: 0
+            };
+            
+            // Input
+            var keys = {
+                left: false,
+                right: false
+            };
+            
+            // Storage key
+            var STORAGE_KEY = 'ball-balance-save';
+            
+            // ========================================
+            // STORAGE FUNCTIONS
+            // ========================================
+            
+            function saveToStorage() {
+                try {
+                    var data = {
+                        highScore: highScore,
+                        scores: scores,
+                        playerName: playerName
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    console.log('Saved to localStorage:', data);
+                } catch (e) {
+                    console.error('Save failed:', e);
+                }
                 
-                // Also try Applaa API
+                // Applaa API
                 try {
                     window.parent.postMessage({
                         type: 'applaa-game-save-score',
                         gameId: 'ball-balance',
-                        playerName: gameState.playerName,
-                        score: gameState.highScore
+                        playerName: playerName,
+                        score: highScore
                     }, '*');
                 } catch (e) {}
-            } catch (e) {
-                console.error('Failed to save game data:', e);
             }
-        }
-
-        function loadGameData() {
-            // STEP 1: Initialize to 0 immediately
-            gameState.highScore = 0;
-            gameState.scores = [];
-            gameState.playerName = 'Player';
-            updateAllHighScoreDisplays();
-            updateLeaderboards();
-
-            // STEP 2: Load from localStorage
-            try {
-                const savedData = localStorage.getItem(STORAGE_KEY);
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    gameState.highScore = data.highScore || 0;
-                    gameState.scores = data.scores || [];
-                    gameState.playerName = data.lastPlayerName || 'Player';
-                    playerNameInput.value = gameState.playerName;
-                    console.log('Game data loaded:', data);
-                    
-                    // STEP 3: Update displays with loaded data
-                    updateAllHighScoreDisplays();
-                    updateLeaderboards();
+            
+            function loadFromStorage() {
+                // Initialize to 0
+                highScore = 0;
+                scores = [];
+                playerName = 'Player';
+                
+                try {
+                    var saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        var data = JSON.parse(saved);
+                        highScore = data.highScore || 0;
+                        scores = data.scores || [];
+                        playerName = data.playerName || 'Player';
+                        playerNameInput.value = playerName;
+                        console.log('Loaded from localStorage:', data);
+                    }
+                } catch (e) {
+                    console.error('Load failed:', e);
                 }
-            } catch (e) {
-                console.error('Failed to load game data:', e);
+                
+                updateHighScoreDisplays();
+                updateLeaderboards();
+                
+                // Applaa API
+                try {
+                    window.parent.postMessage({
+                        type: 'applaa-game-load-data',
+                        gameId: 'ball-balance'
+                    }, '*');
+                } catch (e) {}
             }
-
-            // Also try Applaa API
-            try {
-                window.parent.postMessage({
-                    type: 'applaa-game-load-data',
-                    gameId: 'ball-balance'
-                }, '*');
-            } catch (e) {}
-        }
-
-        function saveNewScore(playerName, score) {
-            const roundedScore = Math.round(score * 10) / 10;
             
-            // Add to scores array
-            gameState.scores.push({
-                playerName: playerName,
-                score: roundedScore,
-                timestamp: new Date().toISOString()
-            });
-
-            // Sort by score (highest first) and keep top 10
-            gameState.scores.sort((a, b) => b.score - a.score);
-            gameState.scores = gameState.scores.slice(0, 10);
-
-            // Update high score if needed
-            if (roundedScore > gameState.highScore) {
-                gameState.highScore = roundedScore;
-            }
-
-            // Update player name
-            gameState.playerName = playerName;
-
-            // Save to localStorage
-            saveGameData();
-
-            // Update all displays
-            updateAllHighScoreDisplays();
-            updateLeaderboards();
-        }
-
-        function updateAllHighScoreDisplays() {
-            const highScoreText = gameState.highScore.toFixed(1) + 's';
-            startHighScore.textContent = highScoreText;
-            hudHighScore.textContent = gameState.highScore.toFixed(1);
-            gameOverHighScore.textContent = highScoreText;
-        }
-
-        function updateLeaderboards() {
-            let html = '<h4>🏆 Top Scores</h4>';
-            
-            if (gameState.scores.length === 0) {
-                html += '<p style="color: #666; text-align: center; font-size: 0.85rem;">No scores yet. Be the first!</p>';
-            } else {
-                gameState.scores.slice(0, 5).forEach((entry, index) => {
-                    html += `
-                        <div class="leaderboard-entry">
-                            <span class="rank">${index + 1}.</span>
-                            <span class="name">${entry.playerName}</span>
-                            <span class="entry-score">${entry.score.toFixed(1)}s</span>
-                        </div>
-                    `;
+            function addNewScore(name, score) {
+                score = Math.round(score * 10) / 10;
+                
+                scores.push({
+                    name: name,
+                    score: score,
+                    date: Date.now()
                 });
-            }
-
-            startLeaderboard.innerHTML = html;
-            gameOverLeaderboard.innerHTML = html;
-        }
-
-        // Listen for Applaa data responses
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'applaa-game-data-loaded' && event.data.data) {
-                const data = event.data.data;
-                if (data.highScore > gameState.highScore) {
-                    gameState.highScore = data.highScore;
+                
+                scores.sort(function(a, b) { return b.score - a.score; });
+                scores = scores.slice(0, 10);
+                
+                if (score > highScore) {
+                    highScore = score;
                 }
-                if (data.scores && data.scores.length > 0) {
-                    // Merge scores
-                    data.scores.forEach(s => {
-                        if (!gameState.scores.find(gs => gs.timestamp === s.timestamp)) {
-                            gameState.scores.push(s);
-                        }
-                    });
-                    gameState.scores.sort((a, b) => b.score - a.score);
-                    gameState.scores = gameState.scores.slice(0, 10);
-                }
-                if (data.lastPlayerName) {
-                    gameState.playerName = data.lastPlayerName;
-                    playerNameInput.value = gameState.playerName;
-                }
-                updateAllHighScoreDisplays();
+                
+                playerName = name;
+                saveToStorage();
+                updateHighScoreDisplays();
                 updateLeaderboards();
             }
-        });
-
-        // ============== CANVAS RESIZE ==============
-        function resizeCanvas() {
-            const container = document.getElementById('gameContainer');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-
-            // Update platform position (center of screen, slightly below middle)
-            platform.x = canvas.width / 2;
-            platform.y = canvas.height * 0.55;
-
-            // Responsive sizing
-            ball.radius = Math.max(18, Math.min(28, canvas.width / 30));
-            platform.width = Math.max(200, Math.min(320, canvas.width * 0.4));
-        }
-
-        // ============== GAME INITIALIZATION ==============
-        function initGame() {
-            resizeCanvas();
-
-            // Reset ball position (centered above platform)
-            ball.x = platform.x;
-            ball.y = platform.y - platform.height / 2 - ball.radius - 10;
-            ball.vx = 0;
-            ball.vy = 0;
-
-            // Reset platform
-            platform.angle = 0;
-            platform.targetAngle = 0;
-
-            // Reset time
-            gameState.time = 0;
-            gameState.lastTime = performance.now();
-
-            // Update display
-            timeDisplay.textContent = '0.0';
-        }
-
-        // ============== GAME LOOP ==============
-        function gameLoop(currentTime) {
-            if (!gameState.isPlaying) {
-                return;
+            
+            function updateHighScoreDisplays() {
+                var text = highScore.toFixed(1) + 's';
+                menuHighScore.textContent = text;
+                hudBest.textContent = highScore.toFixed(1);
+                overHighScore.textContent = text;
             }
-
-            const deltaTime = Math.min((currentTime - gameState.lastTime) / 1000, 0.05);
-            gameState.lastTime = currentTime;
-
-            update(deltaTime);
-            render();
-
-            gameState.animationId = requestAnimationFrame(gameLoop);
-        }
-
-        // ============== UPDATE PHYSICS ==============
-        function update(dt) {
-            // Update survival time
-            gameState.time += dt;
-            timeDisplay.textContent = gameState.time.toFixed(1);
-
-            // Handle platform tilt based on input
-            if (input.left && !input.right) {
-                platform.targetAngle = -CONFIG.maxTilt;
-            } else if (input.right && !input.left) {
-                platform.targetAngle = CONFIG.maxTilt;
-            } else {
-                platform.targetAngle = 0;
-            }
-
-            // Smoothly interpolate platform angle
-            const angleDiff = platform.targetAngle - platform.angle;
-            const angleSpeed = platform.targetAngle !== 0 ? CONFIG.tiltSpeed : CONFIG.tiltReturnSpeed;
-            platform.angle += angleDiff * angleSpeed * dt * 4;
-
-            // Apply gravity to ball
-            ball.vy += CONFIG.gravity * dt;
-
-            // Apply tilt force to ball (ball rolls based on platform angle)
-            const tiltForce = Math.sin(platform.angle) * CONFIG.gravity * 1.8;
-            ball.vx += tiltForce * dt;
-
-            // Apply friction
-            ball.vx *= CONFIG.friction;
-
-            // Update ball position
-            ball.x += ball.vx * dt;
-            ball.y += ball.vy * dt;
-
-            // Check platform collision
-            checkPlatformCollision();
-
-            // Check if ball fell off screen
-            if (ball.y > canvas.height + ball.radius * 3) {
-                triggerGameOver();
-            }
-        }
-
-        function checkPlatformCollision() {
-            // Calculate platform endpoints with rotation
-            const cos = Math.cos(platform.angle);
-            const sin = Math.sin(platform.angle);
-            const halfWidth = platform.width / 2;
-
-            // Platform endpoints
-            const leftX = platform.x - halfWidth * cos;
-            const leftY = platform.y - halfWidth * sin;
-            const rightX = platform.x + halfWidth * cos;
-            const rightY = platform.y + halfWidth * sin;
-
-            // Direction vector along platform
-            const dx = rightX - leftX;
-            const dy = rightY - leftY;
-            const len = Math.sqrt(dx * dx + dy * dy);
-            const nx = dx / len;
-            const ny = dy / len;
-
-            // Vector from platform left point to ball center
-            const bx = ball.x - leftX;
-            const by = ball.y - leftY;
-
-            // Project ball onto platform line
-            const proj = bx * nx + by * ny;
-            const clampedProj = Math.max(0, Math.min(len, proj));
-
-            // Closest point on platform to ball
-            const closestX = leftX + nx * clampedProj;
-            const closestY = leftY + ny * clampedProj;
-
-            // Distance from ball center to closest point
-            const distX = ball.x - closestX;
-            const distY = ball.y - closestY;
-            const dist = Math.sqrt(distX * distX + distY * distY);
-
-            // Platform surface normal (pointing upward from tilted surface)
-            const normalX = sin;
-            const normalY = -cos;
-
-            // Check if ball is above platform surface
-            const relX = ball.x - platform.x;
-            const relY = ball.y - platform.y;
-            const abovePlatform = relX * normalX + relY * normalY < 0;
-
-            // Collision threshold
-            const collisionDist = ball.radius + platform.height / 2;
-
-            if (dist < collisionDist && abovePlatform && proj >= -10 && proj <= len + 10) {
-                // Collision detected - push ball out
-                if (dist > 0.001) {
-                    const overlap = collisionDist - dist;
-                    ball.x += (distX / dist) * overlap;
-                    ball.y += (distY / dist) * overlap;
-                }
-
-                // Calculate velocity component toward platform
-                const velDot = ball.vx * (-normalX) + ball.vy * (-normalY);
+            
+            function updateLeaderboards() {
+                var html = '<h4>🏆 Top Scores</h4>';
                 
-                if (velDot > 0) {
-                    // Reflect velocity with bounce
-                    ball.vx += normalX * velDot * (1 + CONFIG.ballBounce);
-                    ball.vy += normalY * velDot * (1 + CONFIG.ballBounce);
+                if (scores.length === 0) {
+                    html += '<p style="color:#666;">No scores yet!</p>';
+                } else {
+                    for (var i = 0; i < Math.min(5, scores.length); i++) {
+                        var s = scores[i];
+                        html += '<div class="leaderboard-item">';
+                        html += '<span>' + (i + 1) + '. </span>';
+                        html += '<span class="name">' + s.name + '</span>';
+                        html += '<span class="score">' + s.score.toFixed(1) + 's</span>';
+                        html += '</div>';
+                    }
                 }
-
-                // Dampen vertical velocity when on platform
-                ball.vy *= 0.7;
+                
+                menuLeaderboard.innerHTML = html;
+                overLeaderboard.innerHTML = html;
             }
-        }
-
-        // ============== RENDER ==============
-        const stars = [];
-        for (let i = 0; i < 80; i++) {
-            stars.push({
-                x: Math.random(),
-                y: Math.random(),
-                size: Math.random() * 2 + 0.5,
-                alpha: Math.random() * 0.5 + 0.2,
-                twinkle: Math.random() * Math.PI * 2
+            
+            // Applaa message handler
+            window.addEventListener('message', function(e) {
+                if (e.data && e.data.type === 'applaa-game-data-loaded' && e.data.data) {
+                    var d = e.data.data;
+                    if (d.highScore && d.highScore > highScore) {
+                        highScore = d.highScore;
+                    }
+                    if (d.lastPlayerName) {
+                        playerName = d.lastPlayerName;
+                        playerNameInput.value = playerName;
+                    }
+                    updateHighScoreDisplays();
+                }
             });
-        }
-
-        function render() {
-            // Clear canvas with gradient background
-            const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGrad.addColorStop(0, '#0a0a1a');
-            bgGrad.addColorStop(0.5, '#0f1428');
-            bgGrad.addColorStop(1, '#1a1a2e');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw twinkling stars
-            const time = performance.now() / 1000;
-            stars.forEach(star => {
-                const twinkleAlpha = star.alpha * (0.7 + 0.3 * Math.sin(time * 2 + star.twinkle));
+            
+            // ========================================
+            // GAME FUNCTIONS
+            // ========================================
+            
+            function resizeCanvas() {
+                var container = document.getElementById('gameContainer');
+                var w = container.clientWidth;
+                var h = container.clientHeight;
+                canvas.width = w;
+                canvas.height = h;
+                
+                platform.x = w / 2;
+                platform.y = h * 0.55;
+                platform.width = Math.min(280, w * 0.4);
+                ball.radius = Math.min(22, w / 35);
+            }
+            
+            function resetGame() {
+                resizeCanvas();
+                
+                ball.x = platform.x;
+                ball.y = platform.y - platform.height / 2 - ball.radius - 10;
+                ball.vx = 0;
+                ball.vy = 0;
+                
+                platform.angle = 0;
+                platform.targetAngle = 0;
+                
+                gameTime = 0;
+                timeDisplay.textContent = '0.0';
+            }
+            
+            function startGame() {
+                console.log('Starting game...');
+                
+                playerName = playerNameInput.value.trim() || 'Player';
+                
+                // Hide screens, show HUD
+                startScreen.classList.add('hidden');
+                gameOverScreen.classList.add('hidden');
+                hud.classList.remove('hidden');
+                
+                resetGame();
+                
+                isPlaying = true;
+                lastTimestamp = performance.now();
+                
+                // Start game loop
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                animationId = requestAnimationFrame(gameLoop);
+                
+                console.log('Game started!');
+            }
+            
+            function endGame() {
+                console.log('Game ended. Time:', gameTime);
+                
+                isPlaying = false;
+                
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                var finalTime = Math.round(gameTime * 10) / 10;
+                finalScoreDisplay.textContent = finalTime.toFixed(1) + 's';
+                
+                // Check for new record
+                var isNewRecord = finalTime > highScore;
+                newRecordText.style.display = isNewRecord ? 'block' : 'none';
+                
+                // Save score
+                addNewScore(playerName, finalTime);
+                
+                // Show game over screen
+                hud.classList.add('hidden');
+                gameOverScreen.classList.remove('hidden');
+            }
+            
+            function showMenu() {
+                isPlaying = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                gameOverScreen.classList.add('hidden');
+                hud.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+            }
+            
+            function closeGame() {
+                try {
+                    window.parent.postMessage({ type: 'applaa-close-game' }, '*');
+                } catch (e) {
+                    window.close();
+                }
+            }
+            
+            // ========================================
+            // GAME LOOP
+            // ========================================
+            
+            function gameLoop(timestamp) {
+                if (!isPlaying) return;
+                
+                var dt = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+                lastTimestamp = timestamp;
+                
+                update(dt);
+                render();
+                
+                animationId = requestAnimationFrame(gameLoop);
+            }
+            
+            function update(dt) {
+                // Update time
+                gameTime += dt;
+                timeDisplay.textContent = gameTime.toFixed(1);
+                
+                // Platform tilt
+                if (keys.left && !keys.right) {
+                    platform.targetAngle = -maxTilt;
+                } else if (keys.right && !keys.left) {
+                    platform.targetAngle = maxTilt;
+                } else {
+                    platform.targetAngle = 0;
+                }
+                
+                var angleDiff = platform.targetAngle - platform.angle;
+                platform.angle += angleDiff * tiltSpeed * dt * 5;
+                
+                // Ball physics
+                ball.vy += gravity * dt;
+                ball.vx += Math.sin(platform.angle) * gravity * 1.6 * dt;
+                ball.vx *= friction;
+                
+                ball.x += ball.vx * dt;
+                ball.y += ball.vy * dt;
+                
+                // Platform collision
+                checkCollision();
+                
+                // Check if ball fell
+                if (ball.y > canvas.height + ball.radius * 2) {
+                    endGame();
+                }
+            }
+            
+            function checkCollision() {
+                var cos = Math.cos(platform.angle);
+                var sin = Math.sin(platform.angle);
+                var hw = platform.width / 2;
+                
+                // Platform endpoints
+                var lx = platform.x - hw * cos;
+                var ly = platform.y - hw * sin;
+                var rx = platform.x + hw * cos;
+                var ry = platform.y + hw * sin;
+                
+                // Direction along platform
+                var dx = rx - lx;
+                var dy = ry - ly;
+                var len = Math.sqrt(dx * dx + dy * dy);
+                var nx = dx / len;
+                var ny = dy / len;
+                
+                // Ball to platform left point
+                var bx = ball.x - lx;
+                var by = ball.y - ly;
+                
+                // Project onto platform
+                var proj = bx * nx + by * ny;
+                proj = Math.max(0, Math.min(len, proj));
+                
+                // Closest point
+                var cx = lx + nx * proj;
+                var cy = ly + ny * proj;
+                
+                // Distance
+                var distX = ball.x - cx;
+                var distY = ball.y - cy;
+                var dist = Math.sqrt(distX * distX + distY * distY);
+                
+                // Normal (perpendicular up)
+                var normX = sin;
+                var normY = -cos;
+                
+                // Check if above
+                var above = (ball.x - platform.x) * normX + (ball.y - platform.y) * normY < 0;
+                
+                var colDist = ball.radius + platform.height / 2;
+                
+                if (dist < colDist && above && proj >= -5 && proj <= len + 5) {
+                    // Push out
+                    if (dist > 0.001) {
+                        var overlap = colDist - dist;
+                        ball.x += (distX / dist) * overlap;
+                        ball.y += (distY / dist) * overlap;
+                    }
+                    
+                    // Reflect velocity
+                    var vdot = ball.vx * (-normX) + ball.vy * (-normY);
+                    if (vdot > 0) {
+                        ball.vx += normX * vdot * 1.2;
+                        ball.vy += normY * vdot * 1.2;
+                    }
+                    
+                    ball.vy *= 0.7;
+                }
+            }
+            
+            // ========================================
+            // RENDER
+            // ========================================
+            
+            function render() {
+                // Background
+                ctx.fillStyle = '#0a0a1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Stars
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                for (var i = 0; i < 50; i++) {
+                    var sx = (i * 73 + 17) % canvas.width;
+                    var sy = (i * 47 + 23) % canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Platform shadow
+                ctx.save();
+                ctx.translate(platform.x + 4, platform.y + 6);
+                ctx.rotate(platform.angle);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(-platform.width / 2, -platform.height / 2, platform.width, platform.height);
+                ctx.restore();
+                
+                // Platform
+                ctx.save();
+                ctx.translate(platform.x, platform.y);
+                ctx.rotate(platform.angle);
+                
+                var pGrad = ctx.createLinearGradient(0, -platform.height / 2, 0, platform.height / 2);
+                pGrad.addColorStop(0, '#5ab0e8');
+                pGrad.addColorStop(0.5, '#3498db');
+                pGrad.addColorStop(1, '#1a5276');
+                ctx.fillStyle = pGrad;
+                
                 ctx.beginPath();
-                ctx.arc(star.x * canvas.width, star.y * canvas.height, star.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${twinkleAlpha})`;
+                ctx.roundRect(-platform.width / 2, -platform.height / 2, platform.width, platform.height, 5);
                 ctx.fill();
-            });
-
-            // Draw platform shadow
-            ctx.save();
-            ctx.translate(platform.x + 6, platform.y + 10);
-            ctx.rotate(platform.angle);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.beginPath();
-            ctx.roundRect(-platform.width / 2, -platform.height / 2, platform.width, platform.height, 6);
-            ctx.fill();
-            ctx.restore();
-
-            // Draw platform
-            ctx.save();
-            ctx.translate(platform.x, platform.y);
-            ctx.rotate(platform.angle);
-
-            // Platform gradient
-            const platformGrad = ctx.createLinearGradient(0, -platform.height / 2, 0, platform.height / 2);
-            platformGrad.addColorStop(0, '#5ab0e8');
-            platformGrad.addColorStop(0.3, '#3498db');
-            platformGrad.addColorStop(0.7, '#2980b9');
-            platformGrad.addColorStop(1, '#1a5276');
-
-            ctx.fillStyle = platformGrad;
-            ctx.beginPath();
-            ctx.roundRect(-platform.width / 2, -platform.height / 2, platform.width, platform.height, 6);
-            ctx.fill();
-
-            // Platform glow
-            ctx.shadowColor = 'rgba(52, 152, 219, 0.6)';
-            ctx.shadowBlur = 15;
-            ctx.strokeStyle = 'rgba(100, 180, 255, 0.7)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            // Platform edge highlights
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-platform.width / 2 + 6, -platform.height / 2 + 2);
-            ctx.lineTo(platform.width / 2 - 6, -platform.height / 2 + 2);
-            ctx.stroke();
-
-            ctx.restore();
-
-            // Draw ball shadow
-            ctx.beginPath();
-            ctx.ellipse(ball.x + 4, ball.y + 8, ball.radius * 0.85, ball.radius * 0.35, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-            ctx.fill();
-
-            // Draw ball with gradient
-            const ballGrad = ctx.createRadialGradient(
-                ball.x - ball.radius * 0.35,
-                ball.y - ball.radius * 0.35,
-                0,
-                ball.x,
-                ball.y,
-                ball.radius
-            );
-            ballGrad.addColorStop(0, '#ff7b7b');
-            ballGrad.addColorStop(0.2, '#ff5252');
-            ballGrad.addColorStop(0.6, '#e53935');
-            ballGrad.addColorStop(1, '#b71c1c');
-
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fillStyle = ballGrad;
-            ctx.fill();
-
-            // Ball highlight
-            ctx.beginPath();
-            ctx.arc(ball.I'll continue and complete the file from where it was cut off.
-
-<applaa-write path="godot-web-export/index.html" description="Complete Ball Balance game with working start button and localStorage persistence">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ball Balance</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #gameContainer {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 100vh;
-            max-height: 600px;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
-        }
-        .screen {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(10, 10, 30, 0.95);
-            border-radius: 10px;
-            z-index: 10;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .title {
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: #00d4ff;
-            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            font-size: 1.1rem;
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-        .instruction {
-            font-size: 0.95rem;
-            color: #888;
-            margin-bottom: 15px;
-            text-align: center;
-            line-height: 1.5;
-        }
-        .stats-box {
-            background: rgba(0, 100, 150, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            padding: 12px 25px;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-        .stats-box h3 {
-            color: #00d4ff;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
-        .stats-box .value {
-            color: #ffd700;
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        .player-input {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .player-input label {
-            color: #aaa;
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
-        .player-input input {
-            padding: 10px 15px;
-            font-size: 1rem;
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            text-align: center;
-            width: 180px;
-        }
-        .player-input input:focus {
-            outline: none;
-            border-color: #00d4ff;
-        }
-        .btn {
-            padding: 14px 36px;
-            font-size: 1.15rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin: 4px;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #000;
-        }
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
-        }
-        .btn-secondary {
-            background: rgba(100, 100, 100, 0.3);
-            color: #fff;
-            border: 2px solid #666;
-            padding: 12px 28px;
-            font-size: 1rem;
-        }
-        .btn-secondary:hover {
-            background: rgba(100, 100, 100, 0.5);
-        }
-        .btn-close {
-            background: rgba(255, 50, 50, 0.2);
-            color: #ff6666;
-            border: 2px solid #ff6666;
-            padding: 8px 20px;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-        .btn-close:hover {
-            background: rgba(255, 50, 50, 0.4);
-        }
-        #hud {
-            position: absolute;
-            top: 10px; left: 10px; right: 10px;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 5;
-        }
-        #hud.hidden { display: none; }
-        .hud-item {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        .hud-item.time { color: #00d4ff; }
-        .hud-item.best { color: #ffd700; }
-        #mobileControls {
-            position: absolute;
-            bottom: 20px;
-            left: 0; right: 0;
-            display: none;
-            justify-content: space-between;
-            padding: 0 25px;
-            z-index: 5;
-        }
-        .control-btn {
-            width: 75px; height: 75px;
-            border-radius: 50%;
-            background: rgba(0, 212, 255, 0.25);
-            border: 3px solid rgba(0, 212, 255, 0.5);
-            color: #00d4ff;
-            font-size: 1.8rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .control-btn:active {
-            background: rgba(0, 212, 255, 0.5);
-            transform: scale(0.95);
-        }
-        .leaderboard {
-            margin-top: 10px;
-            max-height: 110px;
-            overflow-y: auto;
-            width: 100%;
-            max-width: 260px;
-        }
-        .leaderboard h4 {
-            color: #ffd700;
-            margin-bottom: 6px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 8px;
-            color: #ccc;
-            font-size: 0.8rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .leaderboard-entry .rank { color: #888; width: 22px; }
-        .leaderboard-entry .name { flex: 1; margin-left: 8px; }
-        .leaderboard-entry .sc { color: #00d4ff; }
-        .final-score {
-            font-size: 3rem;
-            color: #00d4ff;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-        .new-record {
-            color: #ffd700;
-            font-size: 1.2rem;
-            animation: pulse 0.5s ease infinite alternate;
-        }
-        .new-record.hidden { display: none; }
-        @keyframes pulse {
-            from { opacity: 0.7; transform: scale(1); }
-            to { opacity: 1; transform: scale(1.08); }
-        }
-        .btn-row { display: flex; gap: 10px; margin-bottom: 8px; }
-        @media (max-width: 600px) {
-            .title { font-size: 2rem; }
-            .btn { padding: 12px 28px; font-size: 1rem; }
-            #mobileControls { display: flex; }
-            .control-btn { width: 65px; height: 65px; font-size: 1.5rem; }
-            .final-score { font-size: 2.2rem; }
-        }
-    </style>
-</head>
-<body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-
-        <div id="hud" class="hidden">
-            <div class="hud-item time">⏱️ <span id="timeDisplay">0.0</span>s</div>
-            <div class="hud-item best">🏆 <span id="hudHighScore">0.0</span>s</div>
-        </div>
-
-        <div id="mobileControls">
-            <div class="control-btn" id="leftBtn">◀</div>
-            <div class="control-btn" id="rightBtn">▶</div>
-        </div>
-
-        <div id="startScreen" class="screen">
-            <div class="title">🎱 Ball Balance</div>
-            <div class="subtitle">Keep the ball on the platform!</div>
-            <div class="stats-box">
-                <h3>🏆 HIGH SCORE</h3>
-                <div class="value" id="startHighScore">0.0s</div>
-            </div>
-            <div class="instruction">
-                <strong>Controls:</strong><br>
-                ← → Arrow Keys or A/D to tilt platform<br>
-                Mobile: Tap the on-screen buttons
-            </div>
-            <div class="player-input">
-                <label for="playerName">Your Name:</label>
-                <input type="text" id="playerName" placeholder="Player" maxlength="12">
-            </div>
-            <button class="btn btn-primary" id="startBtn">▶ START GAME</button>
-            <div class="leaderboard" id="startLeaderboard"></div>
-            <button class="btn btn-close" id="closeBtn1">✕ Close</button>
-        </div>
-
-        <div id="gameOverScreen" class="screen hidden">
-            <div class="title">💥 Game Over!</div>
-            <div id="newHighScoreText" class="new-record hidden">🎉 NEW HIGH SCORE! 🎉</div>
-            <div class="final-score" id="finalScore">0.0s</div>
-            <div class="stats-box">
-                <h3>🏆 HIGH SCORE</h3>
-                <div class="value" id="gameOverHighScore">0.0s</div>
-            </div>
-            <div class="btn-row">
-                <button class="btn btn-primary" id="restartBtn">🔄 Play Again</button>
-                <button class="btn btn-secondary" id="menuBtn">📋 Menu</button>
-            </div>
-            <div class="leaderboard" id="gameOverLeaderboard"></div>
-            <button class="btn btn-close" id="closeBtn2">✕ Close</button>
-        </div>
-    </div>
-
-    <script>
-    (function() {
-        'use strict';
-
-        // === CONFIG ===
-        const CONFIG = {
-            gravity: 950,
-            friction: 0.985,
-            maxTilt: 0.42,
-            tiltSpeed: 3.2,
-            tiltReturn: 2.0,
-            bounce: 0.25
-        };
-
-        const STORAGE_KEY = 'ball-balance-data';
-
-        // === STATE ===
-        let state = {
-            playing: false,
-            time: 0,
-            lastFrame: 0,
-            rafId: null,
-            playerName: 'Player',
-            highScore: 0,
-            scores: []
-        };
-
-        let ball = { x: 0, y: 0, vx: 0, vy: 0, r: 22 };
-        let plat = { x: 0, y: 0, w: 250, h: 16, angle: 0, target: 0 };
-        let input = { left: false, right: false };
-
-        // === DOM ===
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const startScreen = document.getElementById('startScreen');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const hud = document.getElementById('hud');
-        const timeEl = document.getElementById('timeDisplay');
-        const hudHigh = document.getElementById('hudHighScore');
-        const startHigh = document.getElementById('startHighScore');
-        const overHigh = document.getElementById('gameOverHighScore');
-        const finalEl = document.getElementById('finalScore');
-        const newRecordEl = document.getElementById('newHighScoreText');
-        const nameInput = document.getElementById('playerName');
-        const startLB = document.getElementById('startLeaderboard');
-        const overLB = document.getElementById('gameOverLeaderboard');
-
-        // === STORAGE ===
-        function loadData() {
-            state.highScore = 0;
-            state.scores = [];
-            state.playerName = 'Player';
-            updateDisplays();
-            updateLeaderboard();
-
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const d = JSON.parse(saved);
-                    state.highScore = d.highScore || 0;
-                    state.scores = d.scores || [];
-                    state.playerName = d.playerName || 'Player';
-                    nameInput.value = state.playerName;
-                    updateDisplays();
-                    updateLeaderboard();
-                }
-            } catch (e) { console.error('Load error:', e); }
-
-            try {
-                window.parent.postMessage({ type: 'applaa-game-load-data', gameId: 'ball-balance' }, '*');
-            } catch (e) {}
-        }
-
-        function saveData() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                    highScore: state.highScore,
-                    scores: state.scores,
-                    playerName: state.playerName
-                }));
-            } catch (e) { console.error('Save error:', e); }
-
-            try {
-                window.parent.postMessage({
-                    type: 'applaa-game-save-score',
-                    gameId: 'ball-balance',
-                    playerName: state.playerName,
-                    score: state.highScore
-                }, '*');
-            } catch (e) {}
-        }
-
-        function addScore(name, score) {
-            score = Math.round(score * 10) / 10;
-            state.scores.push({ name, score, time: Date.now() });
-            state.scores.sort((a, b) => b.score - a.score);
-            state.scores = state.scores.slice(0, 10);
-            if (score > state.highScore) state.highScore = score;
-            state.playerName = name;
-            saveData();
-            updateDisplays();
-            updateLeaderboard();
-        }
-
-        function updateDisplays() {
-            const txt = state.highScore.toFixed(1) + 's';
-            startHigh.textContent = txt;
-            hudHigh.textContent = state.highScore.toFixed(1);
-            overHigh.textContent = txt;
-        }
-
-        function updateLeaderboard() {
-            let html = '<h4>🏆 Top Scores</h4>';
-            if (state.scores.length === 0) {
-                html += '<p style="color:#666;text-align:center;font-size:0.8rem;">No scores yet!</p>';
-            } else {
-                state.scores.slice(0, 5).forEach((s, i) => {
-                    html += `<div class="leaderboard-entry"><span class="rank">${i+1}.</span><span class="name">${s.name}</span><span class="sc">${s.score.toFixed(1)}s</span></div>`;
-                });
-            }
-            startLB.innerHTML = html;
-            overLB.innerHTML = html;
-        }
-
-        window.addEventListener('message', (e) => {
-            if (e.data && e.data.type === 'applaa-game-data-loaded' && e.data.data) {
-                const d = e.data.data;
-                if (d.highScore > state.highScore) state.highScore = d.highScore;
-                if (d.lastPlayerName) {
-                    state.playerName = d.lastPlayerName;
-                    nameInput.value = state.playerName;
-                }
-                updateDisplays();
-            }
-        });
-
-        // === CANVAS ===
-        function resize() {
-            const c = document.getElementById('gameContainer');
-            canvas.width = c.clientWidth;
-            canvas.height = c.clientHeight;
-            plat.x = canvas.width / 2;
-            plat.y = canvas.height * 0.55;
-            ball.r = Math.max(18, Math.min(26, canvas.width / 32));
-            plat.w = Math.max(200, Math.min(300, canvas.width * 0.38));
-        }
-
-        // === GAME INIT ===
-        function initGame() {
-            resize();
-            ball.x = plat.x;
-            ball.y = plat.y - plat.h / 2 - ball.r - 8;
-            ball.vx = 0;
-            ball.vy = 0;
-            plat.angle = 0;
-            plat.target = 0;
-            state.time = 0;
-            state.lastFrame = performance.now();
-            timeEl.textContent = '0.0';
-        }
-
-        // === GAME LOOP ===
-        function loop(now) {
-            if (!state.playing) return;
-
-            const dt = Math.min((now - state.lastFrame) / 1000, 0.05);
-            state.lastFrame = now;
-
-            update(dt);
-            render();
-
-            state.rafId = requestAnimationFrame(loop);
-        }
-
-        function update(dt) {
-            state.time += dt;
-            timeEl.textContent = state.time.toFixed(1);
-
-            // Platform tilt
-            if (input.left && !input.right) plat.target = -CONFIG.maxTilt;
-            else if (input.right && !input.left) plat.target = CONFIG.maxTilt;
-            else plat.target = 0;
-
-            const diff = plat.target - plat.angle;
-            const spd = plat.target !== 0 ? CONFIG.tiltSpeed : CONFIG.tiltReturn;
-            plat.angle += diff * spd * dt * 4;
-
-            // Ball physics
-            ball.vy += CONFIG.gravity * dt;
-            ball.vx += Math.sin(plat.angle) * CONFIG.gravity * 1.7 * dt;
-            ball.vx *= CONFIG.friction;
-            ball.x += ball.vx * dt;
-            ball.y += ball.vy * dt;
-
-            // Collision
-            collision();
-
-            // Fall check
-            if (ball.y > canvas.height + ball.r * 3) {
-                endGame();
-            }
-        }
-
-        function collision() {
-            const cos = Math.cos(plat.angle);
-            const sin = Math.sin(plat.angle);
-            const hw = plat.w / 2;
-
-            const lx = plat.x - hw * cos;
-            const ly = plat.y - hw * sin;
-            const rx = plat.x + hw * cos;
-            const ry = plat.y + hw * sin;
-
-            const dx = rx - lx;
-            const dy = ry - ly;
-            const len = Math.sqrt(dx * dx + dy * dy);
-            const nx = dx / len;
-            const ny = dy / len;
-
-            const bx = ball.x - lx;
-            const by = ball.y - ly;
-            const proj = Math.max(0, Math.min(len, bx * nx + by * ny));
-
-            const cx = lx + nx * proj;
-            const cy = ly + ny * proj;
-
-            const distX = ball.x - cx;
-            const distY = ball.y - cy;
-            const dist = Math.sqrt(distX * distX + distY * distY);
-
-            const normX = sin;
-            const normY = -cos;
-            const above = (ball.x - plat.x) * normX + (ball.y - plat.y) * normY < 0;
-
-            const colDist = ball.r + plat.h / 2;
-
-            if (dist < colDist && above && proj >= -5 && proj <= len + 5) {
-                if (dist > 0.001) {
-                    const overlap = colDist - dist;
-                    ball.x += (distX / dist) * overlap;
-                    ball.y += (distY / dist) * overlap;
-                }
-
-                const vdot = ball.vx * (-normX) + ball.vy * (-normY);
-                if (vdot > 0) {
-                    ball.vx += normX * vdot * (1 + CONFIG.bounce);
-                    ball.vy += normY * vdot * (1 + CONFIG.bounce);
-                }
-                ball.vy *= 0.7;
-            }
-        }
-
-        // === RENDER ===
-        const stars = Array.from({ length: 70 }, () => ({
-            x: Math.random(), y: Math.random(),
-            s: Math.random() * 1.8 + 0.5,
-            a: Math.random() * 0.4 + 0.2,
-            t: Math.random() * Math.PI * 2
-        }));
-
-        function render() {
-            // Background
-            const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bg.addColorStop(0, '#08081a');
-            bg.addColorStop(1, '#1a1a30');
-            ctx.fillStyle = bg;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Stars
-            const t = performance.now() / 1000;
-            stars.forEach(s => {
+                
+                ctx.strokeStyle = 'rgba(100,180,255,0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+                
+                // Ball shadow
                 ctx.beginPath();
-                ctx.arc(s.x * canvas.width, s.y * canvas.height, s.s, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,255,255,${s.a * (0.6 + 0.4 * Math.sin(t * 2 + s.t))})`;
+                ctx.ellipse(ball.x + 3, ball.y + 6, ball.radius * 0.8, ball.radius * 0.3, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.fill();
-            });
-
-            // Platform shadow
-            ctx.save();
-            ctx.translate(plat.x + 5, plat.y + 8);
-            ctx.rotate(plat.angle);
-            ctx.fillStyle = 'rgba(0,0,0,0.35)';
-            ctx.beginPath();
-            ctx.roundRect(-plat.w / 2, -plat.h / 2, plat.w, plat.h, 6);
-            ctx.fill();
-            ctx.restore();
-
-            // Platform
-            ctx.save();
-            ctx.translate(plat.x, plat.y);
-            ctx.rotate(plat.angle);
-            const pg = ctx.createLinearGradient(0, -plat.h / 2, 0, plat.h / 2);
-            pg.addColorStop(0, '#5cb3e8');
-            pg.addColorStop(0.5, '#3498db');
-            pg.addColorStop(1, '#1a5276');
-            ctx.fillStyle = pg;
-            ctx.beginPath();
-            ctx.roundRect(-plat.w / 2, -plat.h / 2, plat.w, plat.h, 6);
-            ctx.fill();
-            ctx.shadowColor = 'rgba(52,152,219,0.5)';
-            ctx.shadowBlur = 12;
-            ctx.strokeStyle = 'rgba(100,180,255,0.6)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-            ctx.restore();
-
-            // Ball shadow
-            ctx.beginPath();
-            ctx.ellipse(ball.x + 4, ball.y + 7, ball.r * 0.8, ball.r * 0.3, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.fill();
-
-            // Ball
-            const ballG = ctx.createRadialGradient(ball.x - ball.r * 0.3, ball.y - ball.r * 0.3, 0, ball.x, ball.y, ball.r);
-            ballG.addColorStop(0, '#ff7575');
-            ballG.addColorStop(0.3, '#ff4444');
-            ballG.addColorStop(1, '#b71c1c');
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-            ctx.fillStyle = ballG;
-            ctx.fill();
-
-            // Ball highlight
-            ctx.beginPath();
-            ctx.arc(ball.x - ball.r * 0.3, ball.y - ball.r * 0.35, ball.r * 0.22, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.45)';
-            ctx.fill();
-
-            // Ball outline
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255,100,100,0.4)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-
-        // === GAME CONTROL ===
-        function startGame() {
-            state.playerName = nameInput.value.trim() || 'Player';
-            state.playing = true;
-
-            startScreen.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-            hud.classList.remove('hidden');
-
-            initGame();
-            state.rafId = requestAnimationFrame(loop);
-        }
-
-        function endGame() {
-            state.playing = false;
-            if (state.rafId) {
-                cancelAnimationFrame(state.rafId);
-                state.rafId = null;
+                
+                // Ball
+                var bGrad = ctx.createRadialGradient(
+                    ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, 0,
+                    ball.x, ball.y, ball.radius
+                );
+                bGrad.addColorStop(0, '#ff7070');
+                bGrad.addColorStop(0.3, '#ee4444');
+                bGrad.addColorStop(1, '#aa2020');
+                
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = bGrad;
+                ctx.fill();
+                
+                // Ball highlight
+                ctx.beginPath();
+                ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.35, ball.radius * 0.2, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fill();
             }
-
-            const finalTime = Math.round(state.time * 10) / 10;
-            finalEl.textContent = finalTime.toFixed(1) + 's';
-
-            const isNew = finalTime > state.highScore;
-            newRecordEl.classList.toggle('hidden', !isNew);
-
-            addScore(state.playerName, finalTime);
-
-            hud.classList.add('hidden');
-            gameOverScreen.classList.remove('hidden');
-        }
-
-        function showMenu() {
-            state.playing = false;
-            if (state.rafId) cancelAnimationFrame(state.rafId);
-            gameOverScreen.classList.add('hidden');
-            hud.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-        }
-
-        function closeGame() {
-            try { window.parent.postMessage({ type: 'applaa-close-game' }, '*'); } 
-            catch (e) { window.close(); }
-        }
-
-        // === INPUT ===
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { input.left = true; e.preventDefault(); }
-            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { input.right = true; e.preventDefault(); }
-            if (e.key === 'Enter' && !state.playing && !startScreen.classList.contains('hidden')) {
+            
+            // ========================================
+            // INPUT HANDLERS
+            // ========================================
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    keys.left = true;
+                    e.preventDefault();
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    keys.right = true;
+                    e.preventDefault();
+                }
+                if (e.key === 'Enter' && !isPlaying && !startScreen.classList.contains('hidden')) {
+                    startGame();
+                }
+            });
+            
+            document.addEventListener('keyup', function(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    keys.left = false;
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    keys.right = false;
+                }
+            });
+            
+            // Mobile buttons
+            var btnLeft = document.getElementById('btnLeft');
+            var btnRight = document.getElementById('btnRight');
+            
+            btnLeft.addEventListener('touchstart', function(e) { e.preventDefault(); keys.left = true; }, {passive: false});
+            btnLeft.addEventListener('touchend', function(e) { e.preventDefault(); keys.left = false; }, {passive: false});
+            btnLeft.addEventListener('mousedown', function() { keys.left = true; });
+            btnLeft.addEventListener('mouseup', function() { keys.left = false; });
+            btnLeft.addEventListener('mouseleave', function() { keys.left = false; });
+            
+            btnRight.addEventListener('touchstart', function(e) { e.preventDefault(); keys.right = true; }, {passive: false});
+            btnRight.addEventListener('touchend', function(e) { e.preventDefault(); keys.right = false; }, {passive: false});
+            btnRight.addEventListener('mousedown', function() { keys.right = true; });
+            btnRight.addEventListener('mouseup', function() { keys.right = false; });
+            btnRight.addEventListener('mouseleave', function() { keys.right = false; });
+            
+            // ========================================
+            // BUTTON HANDLERS
+            // ========================================
+            
+            document.getElementById('btnStart').addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Start button clicked');
                 startGame();
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') input.left = false;
-            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') input.right = false;
-        });
-
-        // Mobile controls
-        const leftBtn = document.getElementById('leftBtn');
-        const rightBtn = document.getElementById('rightBtn');
-
-        leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); input.left = true; }, { passive: false });
-        leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); input.left = false; }, { passive: false });
-        leftBtn.addEventListener('mousedown', () => input.left = true);
-        leftBtn.addEventListener('mouseup', () => input.left = false);
-        leftBtn.addEventListener('mouseleave', () => input.left = false);
-
-        rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); input.right = true; }, { passive: false });
-        rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); input.right = false; }, { passive: false });
-        rightBtn.addEventListener('mousedown', () => input.right = true);
-        rightBtn.addEventListener('mouseup', () => input.right = false);
-        rightBtn.addEventListener('mouseleave', () => input.right = false);
-
-        // Button clicks
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        document.getElementById('menuBtn').addEventListener('click', showMenu);
-        document.getElementById('closeBtn1').addEventListener('click', closeGame);
-        document.getElementById('closeBtn2').addEventListener('click', closeGame);
-
-        // Resize
-        window.addEventListener('resize', () => {
-            resize();
-            if (!state.playing) render();
-        });
-
-        // === INIT ===
-        loadData();
-        resize();
-        render();
-
-        console.log('Ball Balance game initialized successfully!');
-    })();
+            });
+            
+            document.getElementById('btnRestart').addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Restart button clicked');
+                startGame();
+            });
+            
+            document.getElementById('btnMenu').addEventListener('click', function(e) {
+                e.preventDefault();
+                showMenu();
+            });
+            
+            document.getElementById('btnClose1').addEventListener('click', function(e) {
+                e.preventDefault();
+                closeGame();
+            });
+            
+            document.getElementById('btnClose2').addEventListener('click', function(e) {
+                e.preventDefault();
+                closeGame();
+            });
+            
+            // ========================================
+            // WINDOW EVENTS
+            // ========================================
+            
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                if (!isPlaying) {
+                    render();
+                }
+            });
+            
+            // ========================================
+            // INITIALIZATION
+            // ========================================
+            
+            console.log('Ball Balance initializing...');
+            
+            // Load saved data
+            loadFromStorage();
+            
+            // Initial canvas setup
+            resizeCanvas();
+            
+            // Initial render
+            render();
+            
+            console.log('Ball Balance ready! Click START GAME to play.');
+            
+        })();
     </script>
 </body>
 </html>
